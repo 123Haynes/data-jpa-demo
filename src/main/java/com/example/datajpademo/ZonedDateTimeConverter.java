@@ -5,6 +5,7 @@ import jakarta.persistence.Converter;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Converter(autoApply = true)
 public class ZonedDateTimeConverter implements AttributeConverter<ZonedDateTime, String> {
@@ -14,12 +15,24 @@ public class ZonedDateTimeConverter implements AttributeConverter<ZonedDateTime,
   @Override
   public String convertToDatabaseColumn(ZonedDateTime localDateTime) {
 
-    return ZonedDateTimeParser.print(localDateTime);
+    if (localDateTime == null) {
+
+      return null;
+    }
+
+    return localDateTime.withZoneSameInstant(ZonedDateTimeConverter.BERLIN)
+        .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
   }
 
   @Override
   public ZonedDateTime convertToEntityAttribute(String databaseString) {
 
-    return ZonedDateTimeParser.parse(databaseString);
+    if (databaseString == null) {
+
+      return null;
+    }
+
+    return ZonedDateTime.parse(databaseString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+        .withZoneSameInstant(ZonedDateTimeConverter.BERLIN);
   }
 }

@@ -3,36 +3,25 @@ package com.example.datajpademo;
 import static com.example.datajpademo.ZonedDateTimeConverter.BERLIN;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import javax.persistence.TypedQuery;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Optional;
 
 @DataJpaTest
 class DemoRepositoryTest {
 
   @Autowired
-  private DemoRepository repository;
+  private TestEntityManager entityManager;
 
   private DemoEntity testEntity;
 
   private ZonedDateTime today;
 
-
-  /**
-   * Entfernen der Testdaten.
-   */
-  @AfterEach
-  void tearDown() {
-
-    repository.deleteAll();
-  }
 
   @Test
   void test() {
@@ -43,9 +32,13 @@ class DemoRepositoryTest {
     testEntity.setIdentificationString("test");
     testEntity.setUpdated(ZonedDateTime.now(ZoneId.of("Europe/Berlin")).minusDays(14L));
 
-    repository.save(testEntity);
+    entityManager.persist(testEntity);
 
-    int optionalData = repository.deleteByUpdatedBefore(
-        ZonedDateTime.now(ZoneId.of("Europe/Berlin")).minusDays(10L));
+    TypedQuery<DemoEntity> query = entityManager.getEntityManager().createQuery(
+        "select d1_0 from DemoEntity d1_0 where d1_0.updated<?1", DemoEntity.class);
+    DemoEntity demo = query.setParameter(1, today).getSingleResult();
+
+    assertThat(demo.getUpdated()).isEqualTo(testEntity.getUpdated());
+
   }
 }
