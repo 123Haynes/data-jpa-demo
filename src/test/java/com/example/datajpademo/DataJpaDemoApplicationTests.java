@@ -3,7 +3,7 @@ package com.example.datajpademo;
 import static com.example.datajpademo.ZonedDateTimeConverter.BERLIN;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import javax.persistence.TypedQuery;
+import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
